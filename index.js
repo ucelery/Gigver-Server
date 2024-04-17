@@ -6,6 +6,8 @@ const mongo = require('./mongo');
 const UserModel = require('./models/UserModel');
 const WorkModel = require('./models/JobPostModel');
 
+const { hasUserRated } = require('./utils');
+
 // Create an Express application
 const app = express();
 
@@ -81,6 +83,37 @@ app.post('/posts/add', async (req, res) => {
     await newWorkModel.save();
 
     res.status(201).json({ message: 'Post added successfully', post: newWorkModel });
+  } catch (error) {
+    console.error('Error adding user:', error);
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+});
+
+// Rating Functionality
+// Sample URL http://localhost:3000/rating/add/?<insert-id-here>
+app.post('/users/rating/add', async (req, res) => {
+  try {
+    // Check if the ids of the rated and the rater are valid
+    const existingRater = await UserModel.findById(req.query.raterId);
+    const existingRated = await UserModel.findById(req.query.id);
+
+    if (!existingRated || !existingRater) {
+      return res.status(400).json({ error: 'Either rater or rated ID does not exist!' });
+    }
+
+    if (await hasUserRated(req.query.id, req.query.raterId))
+      return res.status(400).json({ error: 'User has already rated this user!' });
+
+    const result = await UserModel.findByIdAndUpdate(req.query.id, {
+      $push: {
+        rating: {
+          raterId: req.query.id,
+          rate: req.body.rating
+        }
+      }
+    }, { new: true }).exec();
+
+    res.status(201).json({ message: 'Rate added successfully', post: result });
   } catch (error) {
     console.error('Error adding user:', error);
     res.status(500).json({ error: 'Internal Server Error', message: error.message });

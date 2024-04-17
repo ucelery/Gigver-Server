@@ -33,26 +33,21 @@ const userSchema = new mongoose.Schema({
         }
     },
     rating: {
-        one: {
-            type: Number,
-            default: 0,
-        },
-        two: {
-            type: Number,
-            default: 0,
-        },
-        three: {
-            type: Number,
-            default: 0,
-        },
-        four: {
-            type: Number,
-            default: 0,
-        },
-        five: {
-            type: Number,
-            default: 0,
-        }
+        type: [
+            {
+                raterId: {
+                    type: String,
+                    required: true,
+                },
+                rate: {
+                    type: Number,
+                    required: true,
+                    min: 1,
+                    max: 5,
+                },
+            }
+        ],
+        default: [],
     },
 });
 
