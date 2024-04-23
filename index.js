@@ -94,20 +94,20 @@ app.post('/posts/add', async (req, res) => {
 app.post('/users/rating/add', async (req, res) => {
   try {
     // Check if the ids of the rated and the rater are valid
-    const existingRater = await UserModel.findById(req.query.raterId);
-    const existingRated = await UserModel.findById(req.query.id);
+    const existingRater = await UserModel.findById(req.body.rater_id);
+    const existingRated = await UserModel.findById(req.body.user_id);
 
     if (!existingRated || !existingRater) {
       return res.status(400).json({ error: 'Either rater or rated ID does not exist!' });
     }
 
-    if (await hasUserRated(req.query.id, req.query.raterId))
+    if (await hasUserRated(req.body.user_id, req.body.rater_id))
       return res.status(400).json({ error: 'User has already rated this user!' });
 
-    const result = await UserModel.findByIdAndUpdate(req.query.id, {
+    const result = await UserModel.findByIdAndUpdate(req.body.user_id, {
       $push: {
         rating: {
-          raterId: req.query.id,
+          raterId: req.body.rater_id,
           rate: req.body.rating
         }
       }
@@ -115,7 +115,7 @@ app.post('/users/rating/add', async (req, res) => {
 
     res.status(201).json({ message: 'Rate added successfully', post: result });
   } catch (error) {
-    console.error('Error adding user:', error);
+    console.error('Error rating user:', error);
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 });
