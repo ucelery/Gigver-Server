@@ -89,6 +89,20 @@ app.post('/posts/add', async (req, res) => {
   }
 });
 
+app.post('/post/complete', async (req, res) => {
+  try {
+    const post = await WorkModel.findByIdAndUpdate(req.body.post_id, {
+      complete: true
+    });
+
+
+    res.status(201).json({ message: 'Post compeleted successfully', post: post });
+  } catch (error) {
+    console.error('Error adding user:', error);
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+});
+
 // Rating Functionality
 // Sample URL http://localhost:3000/rating/add/?<insert-id-here>
 app.post('/users/rating/add', async (req, res) => {
