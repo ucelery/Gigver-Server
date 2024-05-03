@@ -21,6 +21,10 @@ const schema = new mongoose.Schema({
     rewards: {
         type: String,
         required: true
+    },
+    complete: {
+        type: Boolean,
+        default: false
     }
 });
 
