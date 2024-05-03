@@ -93,7 +93,9 @@ app.post('/post/complete', async (req, res) => {
   try {
     const post = await WorkModel.findByIdAndUpdate(req.body.post_id, {
       complete: true
-    });
+    }, {
+      new: true
+    }).exec();
 
 
     res.status(201).json({ message: 'Post compeleted successfully', post: post });
